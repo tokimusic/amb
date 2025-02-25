@@ -56,11 +56,6 @@
         }
 
         window.onload = checkBrowser; // 頁面載入時檢查瀏覽器
-        window.addEventListener("message", function(event) {
-    if (event.origin === "https://www.air-rex.com.tw") { // 確保是來自合法網頁
-        document.getElementById("status").innerText = event.data;
-    }
-});
     </script>
 </head>
 <body>
