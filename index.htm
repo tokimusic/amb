@@ -22,26 +22,26 @@
                 tel = prompt("請輸入您的電話號碼：");
                 if (tel) {
                     localStorage.setItem('tel', tel);  // 記錄到 localStorage
+                } else {
+                    document.getElementById("status").innerText = "請輸入電話號碼後再進行打卡。"; // 顯示錯誤訊息
+                    return null;  // 如果用戶按取消，則返回 null
                 }
-				else{
-					document.getElementById("status").innerText = "請輸入電話號碼後再進行打卡。"; // 顯示錯誤訊息
-            		return null;  // 如果用戶按取消，則返回 null
-				}
             }
             return tel;
         }
 
         function sendLocation() {
             let tel = askForTel();  // 確保取得電話號碼
-			if (tel === null) {
-					// 如果用戶按取消，則不執行打卡操作
-				return;
-			}
+            if (tel === null) {
+                return;  // 如果用戶按取消，則不執行打卡操作
+            }
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
                     let lat = position.coords.latitude;
                     let lon = position.coords.longitude;
-                    window.location.href = `https://www.air-rex.com.tw/amb.php?latitude=${lat}&longitude=${lon}&tel=${tel}`; // 傳遞電話號碼
+                    let url = `https://www.air-rex.com.tw/amb.php?latitude=${lat}&longitude=${lon}&tel=${tel}`; // 傳遞電話號碼
+                    document.getElementById("hiddenFrame").src = url; // 將請求加載到隱藏的 iframe
+                    document.getElementById("status").innerText = "打卡中！";
                 }, function(error) {
                     document.getElementById("status").innerText = "無法獲取位置: " + error.message;
                 });
@@ -66,5 +66,9 @@
     <!-- 新增換電話按鈕 -->
     <button onclick="clearTel()">換電話</button>
     <p id="telStatus"></p>  <!-- 顯示換電話提示 -->
+
+    <!-- 隱藏的 iframe -->
+    <iframe id="hiddenFrame" style="display: none;"></iframe>
+
 </body>
 </html>
