@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>記錄位置</title>
+    <script>
+        function isLineBrowser() {
+            return /Line/i.test(navigator.userAgent);
+        }
+
+        function checkBrowser() {
+            if (!isLineBrowser()) {
+                // 如果不是 LINE 瀏覽器，則轉址到 Google
+                window.location.href = "https://www.google.com";
+            }
+        }
+
+        function askForTel() {
+            let tel = localStorage.getItem('tel');
+            if (!tel) {
+                tel = prompt("請輸入您的電話號碼：");
+                if (tel) {
+                    localStorage.setItem('tel', tel);  // 記錄到 localStorage
+                }
+				else{
+					document.getElementById("status").innerText = "請輸入電話號碼後再進行打卡。"; // 顯示錯誤訊息
+            		return null;  // 如果用戶按取消，則返回 null
+				}
+            }
+            return tel;
+        }
+
+        function sendLocation() {
+            let tel = askForTel();  // 確保取得電話號碼
+			if (tel === null) {
+					// 如果用戶按取消，則不執行打卡操作
+				return;
+			}
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    let lat = position.coords.latitude;
+                    let lon = position.coords.longitude;
+                    window.location.href = `https://www.air-rex.com.tw/amb.php?latitude=${lat}&longitude=${lon}&tel=${tel}`; // 傳遞電話號碼
+                }, function(error) {
+                    document.getElementById("status").innerText = "無法獲取位置: " + error.message;
+                });
+            } else {
+                document.getElementById("status").innerText = "您的瀏覽器不支援地理位置功能。";
+            }
+        }
+
+        function clearTel() {
+            localStorage.removeItem('tel');  // 清除 localStorage 中的電話號碼
+            document.getElementById("telStatus").innerText = "已清除電話，打卡時重輸電話";  // 顯示 "換電話"
+        }
+
+        window.onload = checkBrowser; // 頁面載入時檢查瀏覽器
+    </script>
+</head>
+<body>
+    <h1>LINE 打卡系統</h1>
+    <a href="#" onclick="sendLocation()"><h2>點擊打卡</h2></a>
+    <p id="status"></p>
+    
+    <!-- 新增換電話按鈕 -->
+    <button onclick="clearTel()">換電話</button>
+    <p id="telStatus"></p>  <!-- 顯示換電話提示 -->
+</body>
+</html>
